@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import logging
+from dataclasses import dataclass
 from typing import Mapping, MutableMapping, Optional
 
 import requests
@@ -11,20 +12,24 @@ import requests
 log = logging.getLogger(__name__)
 
 
+class TelegramNotifierError(RuntimeError):
+    """Raised when a Telegram API request fails."""
+
+
+@dataclass(slots=True)
 class TelegramNotifier:
     """Simple wrapper around Telegram's ``sendMessage`` endpoint."""
 
-    api_url_template = "https://api.telegram.org/bot{token}/sendMessage"
+    bot_token: str
+    chat_id: str
+    session: requests.Session | None = None
+    request_timeout: int = 10
 
-    def __init__(
-        self,
-        bot_token: str,
-        chat_id: str,
-        session: Optional[requests.Session] = None,
-    ) -> None:
-        self._bot_token = bot_token
-        self._chat_id = chat_id
-        self._session = session or requests.Session()
+    api_url_template: str = "https://api.telegram.org/bot{token}/sendMessage"
+
+    def __post_init__(self) -> None:
+        if self.session is None:
+            self.session = requests.Session()
 
     def send_message(
         self,
@@ -37,7 +42,7 @@ class TelegramNotifier:
         """Send ``text`` to the configured chat."""
 
         payload: MutableMapping[str, object] = {
-            "chat_id": self._chat_id,
+            "chat_id": self.chat_id,
             "text": text,
             "disable_notification": disable_notification,
         }
@@ -48,16 +53,27 @@ class TelegramNotifier:
         if extra_params:
             payload.update(extra_params)
 
-        url = self.api_url_template.format(token=self._bot_token)
-        response = self._session.post(url, data=payload, timeout=10)
+        url = self.api_url_template.format(token=self.bot_token)
 
         try:
+            response = self.session.post(url, data=payload, timeout=self.request_timeout)
             response.raise_for_status()
-        except requests.HTTPError:
-            log.exception("Failed to send message to Telegram: %s", response.text)
-            raise
+        except requests.RequestException as exc:  # pragma: no cover - log and raise
+            log.exception("Failed to send message to Telegram: %s", exc)
+            raise TelegramNotifierError("Failed to send message to Telegram") from exc
 
-        return response.json()
+        data = response.json()
+        if not data.get("ok", False):  # pragma: no cover - Telegram API safety
+            log.error("Telegram API returned an error: %s", data)
+            raise TelegramNotifierError("Telegram API returned an error response")
+
+        return data
+
+    def close(self) -> None:
+        """Close the underlying session."""
+
+        if self.session:
+            self.session.close()
 
 
-__all__ = ["TelegramNotifier"]
+__all__ = ["TelegramNotifier", "TelegramNotifierError"]

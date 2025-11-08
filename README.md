@@ -10,15 +10,57 @@ forwards the message to your **Telegram chat or channel**.
 
 ## 🧰 Environment Variables
 | Name | Description |
-|------|--------------|
+|------|-------------|
 | `FB_VERIFY_TOKEN` | Token used for Facebook webhook verification |
-| `FB_PAGE_ACCESS_TOKEN` | Your Facebook page access token |
+| `FB_PAGE_ACCESS_TOKEN` | *(Optional)* Facebook page access token |
 | `TELEGRAM_BOT_TOKEN` | Telegram Bot API token |
 | `TELEGRAM_CHAT_ID` | Chat ID where messages will be sent |
+| `TELEGRAM_PARSE_MODE` | Optional parse mode (`MarkdownV2`, `HTML`, …) |
+| `TELEGRAM_DISABLE_NOTIFICATIONS` | Set to `true` to silence notifications |
+| `LOG_LEVEL` | Optional logging level (defaults to `INFO`) |
 
-## 🧑‍💻 Deployment
-This can run for free on **Render**, **Railway**, or **Fly.io**.
+Create a `.env` file with these values so the application can load them
+automatically via [`python-dotenv`](https://github.com/theskumar/python-dotenv).
 
-Example Render command:
+```
+FB_VERIFY_TOKEN=super-secret
+FB_PAGE_ACCESS_TOKEN=EAAP...
+TELEGRAM_BOT_TOKEN=123456:ABC
+TELEGRAM_CHAT_ID=987654321
+```
+
+## 🚀 Running locally
+1. Install dependencies
+   ```bash
+   pip install -r requirements.txt
+   ```
+2. Start the development server
+   ```bash
+   flask --app app run --reload
+   ```
+3. Expose port `5000` to Facebook using a tunnelling service such as
+   [`ngrok`](https://ngrok.com/) or [`cloudflared`](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/do-more-with-tunnels/trycloudflare/).
+4. Configure the Facebook webhook callback to `https://<your-tunnel>/webhook` and
+   use the same `FB_VERIFY_TOKEN` as above.
+
+You can check the health endpoint at `GET /` and the verification endpoint at
+`GET /webhook` using your browser or `curl`.
+
+### ✅ Running tests
+Install the development dependencies and execute `pytest`:
+
 ```bash
-gunicorn app:app
+pip install -r dev-requirements.txt
+pytest
+```
+
+## 📦 Deploying
+The repository includes a `Procfile` compatible with Render/Railway/Heroku-style
+platforms:
+
+```
+web: gunicorn app:application
+```
+
+Set the environment variables in your hosting provider and you are ready to go.
+
