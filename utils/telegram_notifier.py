@@ -77,4 +77,3 @@ class TelegramNotifier:
 
 
 __all__ = ["TelegramNotifier", "TelegramNotifierError"]
-

@@ -110,4 +110,3 @@ def build_message_text(event: Mapping[str, object]) -> str:
 
 
 __all__ = ["verify_webhook", "iter_message_events", "build_message_text"]
-

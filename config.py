@@ -88,4 +88,3 @@ class Config:
 
 
 __all__ = ["Config", "ConfigurationError"]
-
