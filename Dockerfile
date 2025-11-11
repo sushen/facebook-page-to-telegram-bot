@@ -17,7 +17,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 # Expose the port your app will listen on inside the container
-EXPOSE 8080
+EXPOSE 8000
 
 # Start with gunicorn, pointing at the WSGI app object "application" in app.py
-CMD ["gunicorn", "-w", "2", "-b", "0.0.0.0:8080", "app:application"]
+CMD ["gunicorn", "-w", "2", "-b", "0.0.0.0:8000", "app:application"]
