@@ -74,7 +74,7 @@ This repository already includes the required deployment files for Fly.io:
 To deploy:
 
 1. Install the [Fly CLI](https://fly.io/docs/hands-on/install-flyctl/).
-2. Authenticate and create your app: `fly auth login` and `fly launch --no-deploy` (reuse the existing `fly.toml`).
+2. Authenticate and create your app: `fly auth login` and `fly launch --no-deploy --copy-config` (this reuses the checked-in `fly.toml`).
 3. Deploy the application: `fly deploy`.
 
 Fly will automatically provision the environment variables defined in `fly.toml`. Make
