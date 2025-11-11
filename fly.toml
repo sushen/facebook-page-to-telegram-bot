@@ -2,7 +2,7 @@ app = "facebook-page-to-telegram-bot"
 primary_region = "fra"
 
 [build]
-  builder = "heroku/buildpacks:20"
+  dockerfile = "Dockerfile"
 
 [env]
   PORT = "8000"
