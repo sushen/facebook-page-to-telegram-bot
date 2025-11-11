@@ -64,3 +64,20 @@ web: gunicorn app:application
 
 Set the environment variables in your hosting provider and you are ready to go.
 
+### 🚀 Deploying to Fly.io
+
+This repository already includes the required deployment files for Fly.io:
+
+- `fly.toml` – application configuration with the HTTP service exposed on port `8000`.
+- `Dockerfile` – builds the production image with Gunicorn listening on `0.0.0.0:8000`.
+
+To deploy:
+
+1. Install the [Fly CLI](https://fly.io/docs/hands-on/install-flyctl/).
+2. Authenticate and create your app: `fly auth login` and `fly launch --no-deploy` (reuse the existing `fly.toml`).
+3. Deploy the application: `fly deploy`.
+
+Fly will automatically provision the environment variables defined in `fly.toml`. Make
+sure to set the required secrets using `fly secrets set <KEY>=<VALUE>` before
+deploying.
+
